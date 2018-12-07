@@ -1,6 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Main where
 
-import Lib
+import Control.Monad.State
+
+import Language
 
 main :: IO ()
-main = someFunc
+main = pure ()
+
