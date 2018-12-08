@@ -101,13 +101,13 @@ getLexeme lexeme@(Lexeme morphemes) = do
             modify $ Lens.over vocab (Map.insert lexeme newLexeme)
             pure newLexeme
 
-translate :: (MonadIO m, MonadState Language m) => [Lexeme] -> [LexemeInfo] -> m Sentence
-translate lexemes lexemeInfos = do
+translate :: (MonadIO m, MonadState Language m) => Translatable -> m Sentence
+translate (Translatable lexemes lexemeInfos) = do
     inflection <- Lens.view (grammar . Types.inflection) <$> get
     translatedLexemes <- mapM getLexeme lexemes
 
     -- Transform genders
-
+    -- TODO: Improve morphology so that we have properly separated markers for plurality, etc. in some languages
     sentences <- zipWithM (inflect (inflection^.plurality)) translatedLexemes lexemeInfos
     pure $ Sentence $ concatMap (\(Sentence words) -> words) sentences
 
@@ -133,7 +133,7 @@ sampleLanguage config = do
                        LexemeInfo False Singular Nominative Verb (Lexeme []) Third,
                        LexemeInfo False Singular Accusative Adjective (Lexeme []) Third]
 
-    (s, _) <- runStateT (translate tempLexs tempLexInfo) lang
+    (s, _) <- runStateT (translate (Translatable tempLexs tempLexInfo)) lang
     liftIO $ putStrLn $ prettyPrint s
 
     where

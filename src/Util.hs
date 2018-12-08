@@ -7,12 +7,29 @@ import System.Random
 
 withChance :: MonadIO m => Integer -> a -> a -> m a
 withChance chance ifYes ifNo = do
-    i <- liftIO $ randomRIO (0, chance)
+    i <- liftIO $ randomRIO (0, chance - 1)
 
     if i == 0 then
         pure $ ifYes
     else
         pure $ ifNo
+
+maybeCall :: MonadIO m => Integer -> m a -> m (Maybe a)
+maybeCall chance mv = do
+    v <- mv
+    withChance chance (Just v) Nothing
+
+mapChance :: MonadIO m => (a -> m b) -> Integer -> [a] -> m [b]
+mapChance f chance [] = pure []
+mapChance f chance (x:xs) = do
+    i <- randRange (0, chance - 1)
+
+    if i == 0 then do
+        b <- f x
+        bs <- mapChance f chance xs
+        pure $ b:bs
+    else
+        mapChance f chance xs
 
 minMaxRange :: (Ord a, Random a, MonadIO m) => (a, a) -> (a, a) -> m (a, a)
 minMaxRange minRange maxRange = do

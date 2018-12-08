@@ -46,9 +46,10 @@ ifContains l e ifYes ifNo
 randomInflected :: MonadIO m => Phonology -> [InflectionType] -> m Inflected
 randomInflected phonology legalInflectionTypes = do
     inflectionLocations <- replicateM 1 $ weightedChoice inflectionLocationsWeighted
-    -- TODO: Do something so this is more consistent across terms for a given language
+    -- TODO: Add to config
     inflectionTypes <- takeRandom (0, 3 :: Integer) legalInflectionTypes
 
+    -- TODO: add to config
     -- TODO: Maybe allow more than one morpheme per inflected term?
     morphemes <- replicateM 1 $ Morpheme <$> replicateM 1 (randomSyllable phonology)
 
@@ -94,11 +95,14 @@ randomInflection config phonology = do
     genderN <- randRange $ config^.genderNRange
     genders <- replicateM (fromIntegral genderN) (randomLexeme phonology)
 
+    -- TODO: Add to config
     legalInflectionTypes <- nub <$> takeRandom (1, 9 :: Integer) inflectionTypeList
 
     -- All languages must have words for singular and plural
     -- Maybe can remove restriction for plural, but very hard to imagine a language without singular...
+    -- TODO: Add to config
     tempNumbers <- nub <$> replicateM 10 (weightedChoice [(10, Singular), (10, Plural), (4, NumberInf 2), (1, NumberInf 3), (1, NumberInf 4)])
+    -- TODO: Add to config
     legalNumbers <- nub . ([Singular, Plural] ++) <$> takeRandom (0, 4 :: Integer) tempNumbers
 
     hasArticles <- choice [False, True]
@@ -109,8 +113,10 @@ randomInflection config phonology = do
                 else pure []
 
     plurality <- randomInflected phonology legalInflectionTypes
+    -- TODO: Add to config
     cases <- nub . ([Nominative] ++) <$> takeRandom (0, 10 :: Integer) caseTypeList
     allInflections <- makeAllInflections phonology genders legalInflectionTypes cases legalNumbers
+    -- TODO: add to config
     inflectedPOS <- nub <$> replicateM 4 (weightedChoice [(20, Noun), (20, Verb), (5, Adjective), (5, Adverb)])
 
     pure $ Inflection

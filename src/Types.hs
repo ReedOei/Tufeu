@@ -23,27 +23,27 @@ class PrettyPrint a where
     prettyPrint :: a -> String
 
 data SyllableComp = C | V -- Consonant or vowel
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 data SyllableType = SyllableType [SyllableComp]
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 data NumberInf = Singular
                | Plural
                | NumberInf Integer
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 data Phoneme = Phoneme String
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 data Syllable = Syllable [Phoneme]
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 data Morpheme = Morpheme [Syllable]
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 data Lexeme = Lexeme [Morpheme]
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 data Word = Word [Lexeme] -- TODO: Add other things to words such as case, tense, number, gender, etc.
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 data Sentence = Sentence [Word]
-    deriving (Show, Eq)
+    deriving (Show, Eq, Read)
 
 instance PrettyPrint Phoneme where
     prettyPrint (Phoneme s) = s
@@ -66,7 +66,7 @@ instance PrettyPrint Sentence where
 data PersonType = First
                 | Second
                 | Third
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 data PartOfSpeech = Noun
                   | Verb
@@ -75,7 +75,7 @@ data PartOfSpeech = Noun
                   | Conjunction
                   | Preposition
                   | Interjection
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 -- TODO: Maybe allow ergative-absolutive...
 data CaseType = Nominative
@@ -86,7 +86,7 @@ data CaseType = Nominative
               | Ablative
               | Prepositional
               | Instrumental
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 data LexemeInfo = LexemeInfo
     { _definite :: Bool
@@ -95,7 +95,7 @@ data LexemeInfo = LexemeInfo
     , _partOfSpeech :: PartOfSpeech
     , _gender :: Lexeme
     , _person :: PersonType }
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 Lens.makeLenses ''LexemeInfo
 
 instance PrettyPrint LexemeInfo where
@@ -107,7 +107,7 @@ data Phonology = Phonology
     , _syllableTypes :: [SyllableType]
     , _morphemeLengthRange :: (Integer, Integer)
     , _lexemeLengthRange :: (Integer, Integer) }
-    deriving (Show)
+    deriving (Show, Read)
 Lens.makeLenses ''Phonology
 
 data InflectionLocation = Prefix
@@ -116,7 +116,7 @@ data InflectionLocation = Prefix
                         -- TODO: Maybe this should be a separate thing
                         | ParticleSuffix
                         | ParticlePrefix
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 data InflectionType = Number
                     | Case
@@ -125,12 +125,12 @@ data InflectionType = Number
                     | Person
                     | Definiteness
                     | PartOfSpeechInf
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 data InflectionStyle = InflectPrefix
                      | InflectSuffix
                      | InflectVowel
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 -- TODO: Add pronouns (maybe not here though?)
 data Inflected = Inflected
@@ -138,12 +138,12 @@ data Inflected = Inflected
     , _inflectionLocations :: [InflectionLocation]
     , _style :: InflectionStyle
     , _morphemes :: [Morpheme] }
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 Lens.makeLenses ''Inflected
 
 data Article = Definite Inflected
              | Indefinite Inflected
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 
 data Inflection = Inflection
     { _plurality :: Inflected
@@ -154,19 +154,23 @@ data Inflection = Inflection
     , _numbers :: [NumberInf]
     , _inflectedPOS :: [PartOfSpeech]
     , _inflections :: Map LexemeInfo Morpheme } -- TODO: Add null morpheme
-    deriving Show
+    deriving (Show, Read)
 Lens.makeLenses ''Inflection
 
+-- TODO: Actually make use of this (add a role thing to the lexeme info so that we can tell which is which)
 data SentenceOrderComp = SubjectC | VerbC | ObjectC
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
 data SentenceOrder = SentenceOrder (SentenceOrderComp, SentenceOrderComp, SentenceOrderComp)
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Read)
+
+data Translatable = Translatable [Lexeme] [LexemeInfo]
+    deriving (Show, Read)
 
 data Grammar = Grammar
     { _genderMap :: Map Lexeme Lexeme
     , _inflection :: Inflection
     , _sentenceOrder :: SentenceOrder }
-    deriving (Show)
+    deriving (Show, Read)
 Lens.makeLenses ''Grammar
 
 data Language = Language
@@ -174,7 +178,7 @@ data Language = Language
     , _vocab :: Map Lexeme Lexeme
     , _phonology :: Phonology
     , _grammar :: Grammar }
-    deriving (Show)
+    deriving (Show, Read)
 Lens.makeLenses ''Language
 
 data LanguageConfig = LanguageConfig
